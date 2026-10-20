@@ -37,76 +37,26 @@ The **Online Shopping Product Management System** is built with ASP.NET Core MVC
 
 ```mermaid
 flowchart TD
-    subgraph ClientLayer["🌐 Client / Browser Tier"]
-        Browser["User Web Browser<br/>(Chrome / Edge / Firefox)"]
-        ClientCookies["🍪 Client Storage<br/>• CustomerName Cookie (7-day)<br/>• Session Cookie (ASP.NET Core)"]
-    end
+    Browser[Client Browser]
+    ProductController[ProductController]
+    HomeController[HomeController]
+    ProductService[IProductService / ProductService]
+    MemoryCache[IMemoryCache 10 min]
+    FakeStoreAPI[FakeStore API]
+    ProductModel[Product + ViewModels]
+    ProductExtensions[ProductExtensions]
+    RazorViews[Razor Views]
 
-    subgraph PresentationLayer["🎨 Presentation Layer (Razor Views & UI)"]
-        Layout["Shared Master Frame<br/><code>Views/Shared/_Layout.cshtml</code>"]
-        HomeView["Landing & Dashboard<br/><code>Views/Home/Index.cshtml</code>"]
-        CatalogView["Product Catalog & Table<br/><code>Views/Product/Index.cshtml</code>"]
-        DetailsView["Product Details & Order Form<br/><code>Views/Product/Details.cshtml</code>"]
-        ReceiptView["Order Receipt Confirmation<br/><code>Views/Product/OrderConfirmation.cshtml</code>"]
-        ArchView["Architecture Specifications<br/><code>Views/Home/Architecture.cshtml</code>"]
-    end
-
-    subgraph ControllerLayer["⚙️ Controller & State Management Layer"]
-        HomeController["HomeController<br/>• Live Dashboard Metrics<br/>• Architecture Guide"]
-        ProductController["ProductController<br/>• Catalog & Filter Actions<br/>• [ResponseCache(Duration = 60)]<br/>• Cookie & Session Handlers<br/>• Hidden Field Order Placement"]
-    end
-
-    subgraph ServiceLayer["🚀 Service & Caching Layer"]
-        IProductService["IProductService (Contract)"]
-        ProductService["ProductService (Implementation)<br/>• Async HTTP Orchestrator<br/>• Fallback Data Resilience"]
-        MemoryCache["IMemoryCache<br/>• Absolute Expiration: 10 mins<br/>• Key: ONLINE_SHOPPING_PRODUCTS_LIST"]
-        HttpClientInstance["HttpClient Factory<br/>• Non-blocking async I/O"]
-    end
-
-    subgraph DomainLayer["📦 Domain & Extension Layer"]
-        ProductModel["Product Model<br/><code>Models/Product.cs</code><br/>(Id, Name, Price, Discount %, Category)"]
-        ProductExtensions["ProductExtensions<br/><code>Extensions/ProductExtensions.cs</code><br/>• GetDiscountedPrice()<br/>• GetSavingsAmount()"]
-        OrderModel["OrderViewModel<br/><code>Models/OrderViewModel.cs</code><br/>• Hidden Field ProductId binding"]
-        CatalogViewModel["ProductCatalogViewModel<br/><code>Models/ProductCatalogViewModel.cs</code>"]
-    end
-
-    subgraph ExternalServices["☁️ External Cloud Services"]
-        FakeStoreAPI["FakeStore API<br/><code>https://fakestoreapi.com/products</code><br/>(Remote JSON Catalog)"]
-    end
-
-    %% Interactions & Data Flow
-    Browser -->|"HTTP GET / POST"| ControllerLayer
-    Browser <-->|"Store & Send Cookies"| ClientCookies
-    ControllerLayer -->|"Pass ViewModels"| PresentationLayer
-    PresentationLayer -->|"Rendered HTML / CSS"| Browser
-
-    ProductController -->|"Invoke Async"| IProductService
-    IProductService -.-> ProductService
-    ProductService -->|"1. Check / Fetch from Cache"| MemoryCache
-    ProductService -->|"2. On Miss: Asynchronous GET"| HttpClientInstance
-    HttpClientInstance -->|"Fetch JSON Products"| FakeStoreAPI
-    ProductService -->|"3. Populate / Serialize"| ProductModel
-    
-    ProductController -->|"Calculate Selling Price"| ProductExtensions
-    ProductExtensions --> ProductModel
-    ProductController -->|"Bind POST with Hidden Field"| OrderModel
-    ProductController -->|"Composite State"| CatalogViewModel
-    HomeController --> PresentationLayer
-
-    %% Styling
-    classDef clientStyle fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
-    classDef presStyle fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#92400e;
-    classDef ctrlStyle fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#5b21b6;
-    classDef srvStyle fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#15803d;
-    classDef domainStyle fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#9d174d;
-    classDef extStyle fill:#f3f4f6,stroke:#4b5563,stroke-width:2px,color:#1f2937;
-
-    class Browser,ClientCookies clientStyle;
-    class Layout,HomeView,CatalogView,DetailsView,ReceiptView,ArchView presStyle;
-    class HomeController,ProductController ctrlStyle;
-    class IProductService,ProductService,MemoryCache,HttpClientInstance srvStyle;
-    class ProductModel,ProductExtensions,OrderModel,CatalogViewModel domainStyle;
-    class FakeStoreAPI extStyle;
+    Browser --> ProductController
+    Browser --> HomeController
+    ProductController --> ProductService
+    ProductService --> MemoryCache
+    ProductService --> FakeStoreAPI
+    ProductService --> ProductModel
+    ProductController --> ProductExtensions
+    ProductController --> RazorViews
+    HomeController --> RazorViews
+    RazorViews --> Browser
 ```
 
 ### Complete End-to-End Request Flow Diagram (Mermaid)
