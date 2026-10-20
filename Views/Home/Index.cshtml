@@ -1,0 +1,160 @@
+@* ==============================================================================
+   Index.cshtml (Home)
+   Online Shopping Product Management System
+   Clean, modern, customer-facing eCommerce storefront.
+   ============================================================================== *@
+@model IEnumerable<OnlineShoppingSystem.Models.Product>
+
+@{
+    ViewData["Title"] = "Welcome to ShopCore";
+    string? customerName = ViewBag.CustomerName as string;
+    int productCount = ViewBag.ProductCount ?? 0;
+}
+
+<div class="container-fluid px-0">
+    @* --------------------------------------------------------------------------
+       Hero Section: High-converting, professional eCommerce banner
+       -------------------------------------------------------------------------- *@
+    <div class="hero-banner mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-white text-primary px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm">
+                    <i class="bi bi-stars me-1 text-warning"></i> Season Special &bull; Up to 30% Off
+                </span>
+                <h1 class="display-4 fw-bold mb-3 text-white">
+                    Discover Everyday Essentials & Premium Finds
+                </h1>
+                <p class="lead text-white-50 mb-4" style="max-width: 620px;">
+                    Shop the latest trends in electronics, fashion, and accessories. Enjoy automatic discounts, verified reviews, and seamless ordering.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a asp-controller="Product" asp-action="Index" class="btn btn-light btn-lg px-4 py-3 rounded-3 fw-bold text-primary shadow">
+                        <i class="bi bi-bag-check-fill me-2"></i> Browse All Products
+                    </a>
+                    <a href="#featuredSection" class="btn btn-outline-light btn-lg px-4 py-3 rounded-3 fw-semibold">
+                        <i class="bi bi-arrow-down-circle me-2"></i> View Featured Deals
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block text-center">
+                <div class="p-4 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-25 backdrop-blur text-white">
+                    <i class="bi bi-truck fs-1 text-warning d-block mb-2"></i>
+                    <h5 class="fw-bold mb-1">Fast & Reliable Shipping</h5>
+                    <p class="small text-white-50 mb-0">Direct dispatch on all orders with real-time tracking.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --------------------------------------------------------------------------
+       Store Value Propositions
+       -------------------------------------------------------------------------- *@
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="modern-card p-4 h-100 d-flex align-items-center gap-3">
+                <div class="p-3 bg-primary bg-opacity-10 rounded-circle text-primary">
+                    <i class="bi bi-tag-fill fs-3"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Automatic Discounts</h6>
+                    <small class="text-muted">Save up to 30% on top products</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="modern-card p-4 h-100 d-flex align-items-center gap-3">
+                <div class="p-3 bg-success bg-opacity-10 rounded-circle text-success">
+                    <i class="bi bi-shield-check fs-3"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Secure Checkout</h6>
+                    <small class="text-muted">Encrypted state & fast dispatch</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="modern-card p-4 h-100 d-flex align-items-center gap-3">
+                <div class="p-3 bg-info bg-opacity-10 rounded-circle text-info">
+                    <i class="bi bi-lightning-charge-fill fs-3"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Live Inventory</h6>
+                    <small class="text-muted">Real-time product updates</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="modern-card p-4 h-100 d-flex align-items-center gap-3">
+                <div class="p-3 bg-warning bg-opacity-10 rounded-circle text-warning">
+                    <i class="bi bi-arrow-repeat fs-3"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Hassle-Free Returns</h6>
+                    <small class="text-muted">30-day money-back guarantee</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --------------------------------------------------------------------------
+       Featured Products Section
+       -------------------------------------------------------------------------- *@
+    <div id="featuredSection" class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Featured Deals</h3>
+            <p class="text-muted small mb-0">Handpicked selections with discounted prices</p>
+        </div>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-outline-custom">
+            Explore All (@productCount) <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <div class="row g-4 mb-5">
+        @foreach (var item in Model)
+        {
+            <div class="col-sm-6 col-lg-3">
+                <div class="modern-card h-100 d-flex flex-column">
+                    <div class="position-relative p-4 text-center bg-white border-bottom" style="height: 230px;">
+                        @if (item.HasDiscount())
+                        {
+                            <span class="position-absolute top-0 start-0 m-3 discount-badge">
+                                -@item.DiscountPercentage% OFF
+                            </span>
+                        }
+                        <img src="@item.Image" alt="@item.ProductName" class="img-fluid h-100 object-fit-contain" />
+                    </div>
+                    <div class="p-4 d-flex flex-column justify-content-between flex-grow-1">
+                        <div>
+                            <span class="badge bg-light text-secondary border small text-uppercase mb-2">
+                                @item.Category
+                            </span>
+                            <h6 class="fw-bold text-truncate-2 mb-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 42px;">
+                                @item.ProductName
+                            </h6>
+                            <div class="text-muted small mb-3">
+                                <i class="bi bi-star-fill text-warning me-1"></i> @item.RatingRate (@item.RatingCount reviews)
+                            </div>
+                        </div>
+                        <div class="mt-2 pt-3 border-top">
+                            <div class="d-flex align-items-baseline gap-2 mb-3">
+                                <span class="discounted-price-highlight">
+                                    $@item.GetDiscountedPrice().ToString("N2")
+                                </span>
+                                @if (item.HasDiscount())
+                                {
+                                    <span class="original-price-strike">
+                                        $@item.Price.ToString("N2")
+                                    </span>
+                                }
+                            </div>
+                            <a asp-controller="Product" asp-action="Details" asp-route-id="@item.ProductId"
+                               class="btn btn-primary-custom w-100 text-center">
+                                View Product
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,274 @@
+@* ==============================================================================
+   Architecture.cshtml (Home)
+   Online Shopping Product Management System
+   Displays interactive architecture diagrams, component breakdown,
+   data flow diagrams, and state management specifications.
+   ============================================================================== *@
+@{
+    ViewData["Title"] = "System Architecture & Flow Diagrams";
+}
+
+<div class="container-fluid px-0">
+    @* Page Header *@
+    <div class="hero-banner mb-4 py-4 px-4">
+        <span class="badge bg-white text-primary px-3 py-1 rounded-pill fw-bold mb-2">
+            System Design Specification
+        </span>
+        <h2 class="fw-bold text-white mb-2">Architecture & Data Flow Specifications</h2>
+        <p class="lead text-white-50 mb-0" style="max-width: 750px;">
+            Comprehensive documentation of the ASP.NET Core MVC architectural layers, State Management mechanisms, Multi-Tier Caching pipelines, and asynchronous API integrations.
+        </p>
+    </div>
+
+    @* --------------------------------------------------------------------------
+       Section 1: High-Level MVC Architectural Topology
+       -------------------------------------------------------------------------- *@
+    <div class="modern-card p-4 p-md-5 mb-5 bg-white">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge-req badge-req-primary">High-Level Topology</span>
+            <span class="text-muted small">ASP.NET Core MVC 3-Tier Pattern</span>
+        </div>
+        <h4 class="fw-bold mb-3">1. Architectural Layer Breakdown</h4>
+        <p class="text-muted mb-4">
+            The application follows the canonical Model-View-Controller design pattern augmented with dedicated Service and Extension layers to maintain high cohesion and low coupling.
+        </p>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="p-4 rounded-3 border bg-light h-100">
+                    <span class="badge bg-primary text-white mb-2">PRESENTATION (VIEWS)</span>
+                    <h6 class="fw-bold">Razor Views (.cshtml)</h6>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li><code>Index.cshtml</code>: Catalog & Table</li>
+                        <li><code>Details.cshtml</code>: Specs & Form</li>
+                        <li><code>OrderConfirmation.cshtml</code>: Receipt</li>
+                        <li><code>_Layout.cshtml</code>: Global Frame</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4 rounded-3 border bg-light h-100">
+                    <span class="badge bg-info text-dark mb-2">CONTROLLER (LOGIC)</span>
+                    <h6 class="fw-bold">Controllers</h6>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li><code>ProductController</code></li>
+                        <li><code>HomeController</code></li>
+                        <li>Cookie & Session Handlers</li>
+                        <li>ResponseCache Directives</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4 rounded-3 border bg-light h-100">
+                    <span class="badge bg-warning text-dark mb-2">SERVICE & CACHE</span>
+                    <h6 class="fw-bold">Business Services</h6>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li><code>IProductService</code></li>
+                        <li><code>ProductService</code></li>
+                        <li><code>IMemoryCache</code> (10m)</li>
+                        <li><code>HttpClient</code> Async Factory</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4 rounded-3 border bg-light h-100">
+                    <span class="badge bg-success text-white mb-2">DOMAIN & EXTENSIONS</span>
+                    <h6 class="fw-bold">Models & Extensions</h6>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li><code>Product</code> entity</li>
+                        <li><code>ProductExtensions</code></li>
+                        <li><code>GetDiscountedPrice()</code></li>
+                        <li><code>OrderViewModel</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        @* Mermaid Architecture & Data Flow Diagram *@
+        <div class="p-4 bg-white border rounded-4 shadow-sm mb-2">
+            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                <span class="text-uppercase text-primary fw-bold small"><i class="bi bi-diagram-3 me-1"></i> Interactive Architecture & Request-Response Flow Diagram</span>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Mermaid.js Dynamic Graph</span>
+            </div>
+            <div class="mermaid text-center overflow-auto py-2">
+flowchart TD
+    subgraph ClientLayer["🌐 Client / Browser Tier"]
+        Browser["User Web Browser<br/>(Chrome / Edge / Firefox)"]
+        ClientCookies["🍪 Client Storage<br/>• CustomerName Cookie (7-day)<br/>• Session Cookie"]
+    end
+
+    subgraph PipelineLayer["🛡️ ASP.NET Core Middleware Pipeline"]
+        Routing["UseRouting()"]
+        RespCache["UseResponseCaching()"]
+        Session["UseSession()"]
+    end
+
+    subgraph ControllerLayer["⚙️ Controller & State Management Layer"]
+        PC["ProductController<br/>• /Product/Index<br/>• /Product/Details?id=X<br/>• /Product/PlaceOrder"]
+        HC["HomeController<br/>• /Home/Index<br/>• /Home/Architecture"]
+    end
+
+    subgraph ServiceLayer["🚀 Service & Caching Layer"]
+        PS["ProductService (IProductService)"]
+        Cache["IMemoryCache<br/>(10-Minute Expiration)"]
+        HTTP["HttpClient (Async I/O)"]
+        FakeAPI["FakeStoreAPI Cloud<br/>https://fakestoreapi.com/products"]
+    end
+
+    subgraph DomainLayer["📦 Domain & Extension Layer"]
+        Model["Product Entity (Models/Product.cs)"]
+        Ext["ProductExtensions.GetDiscountedPrice()"]
+        VM["ProductCatalogViewModel & OrderViewModel"]
+    end
+
+    subgraph ViewsLayer["🎨 Presentation Layer (Razor Views)"]
+        VIndex["Views/Product/Index.cshtml (Table / Grid)"]
+        VDetails["Views/Product/Details.cshtml (Specs & Form)"]
+        VConfirm["Views/Product/OrderConfirmation.cshtml (Receipt)"]
+    end
+
+    Browser -->|"1. HTTP Request"| Routing
+    Routing --> RespCache --> Session --> PC
+    Browser <-->|"Read/Write Cookies"| ClientCookies
+    PC <-->|"State: Category"| Session
+    PC -->|"2. GetProductsAsync()"| PS
+    PS -->|"Cache Hit?"| Cache
+    PS -->|"Cache Miss: Async GET"| HTTP
+    HTTP -->|"Fetch JSON"| FakeAPI
+    FakeAPI -->|"Return JSON"| HTTP
+    HTTP -->|"Deserialize"| Model
+    Model --> Ext
+    Ext -->|"Compute Selling Price"| VM
+    PC -->|"Bind Model"| ViewsLayer
+    ViewsLayer -->|"3. Rendered HTML Response"| Browser
+            </div>
+        </div>
+    </div>
+
+    @* --------------------------------------------------------------------------
+       Section 2: State Management Deep Dive
+       -------------------------------------------------------------------------- *@
+    <div class="modern-card p-4 p-md-5 mb-5 bg-white">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge-req badge-req-warning">Requirement 3: State Management</span>
+            <span class="text-muted small">4 Distinct State Techniques</span>
+        </div>
+        <h4 class="fw-bold mb-3">2. State Management Implementation Matrix</h4>
+
+        <div class="table-responsive">
+            <table class="table custom-table">
+                <thead>
+                    <tr>
+                        <th>Mechanism</th>
+                        <th>Target Purpose</th>
+                        <th>Storage Location</th>
+                        <th>Lifecycle / Scope</th>
+                        <th>Implementation Code</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge bg-warning text-dark fw-bold">1. Cookie</span></td>
+                        <td>Store customer full name</td>
+                        <td>Client browser HTTP cookie</td>
+                        <td>Persistent (7-day duration)</td>
+                        <td><code>Response.Cookies.Append("CustomerName", name, options)</code></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge bg-info text-dark fw-bold">2. Session</span></td>
+                        <td>Store selected product category filter</td>
+                        <td>Server memory keyed by Session ID</td>
+                        <td>Active browsing session (30m timeout)</td>
+                        <td><code>HttpContext.Session.SetString("SelectedCategory", cat)</code></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge bg-primary text-white fw-bold">3. Query String</span></td>
+                        <td>Pass <code>ProductId</code> to Details page</td>
+                        <td>URL query string parameter (?id=X)</td>
+                        <td>Single HTTP GET request</td>
+                        <td><code>/Product/Details?id=5</code> to <code>Request.Query["id"]</code></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge bg-danger text-white fw-bold">4. Hidden Field</span></td>
+                        <td>Submit <code>ProductId</code> with order form</td>
+                        <td>HTML form payload (invisible to user)</td>
+                        <td>HTTP POST request cycle</td>
+                        <td><code>&lt;input type="hidden" name="ProductId" value="5" /&gt;</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @* --------------------------------------------------------------------------
+       Section 3: Caching Architecture Matrix
+       -------------------------------------------------------------------------- *@
+    <div class="modern-card p-4 p-md-5 mb-5 bg-white">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge-req badge-req-success">Requirement 4: Caching Architecture</span>
+            <span class="text-muted small">Dual Caching Strategy</span>
+        </div>
+        <h4 class="fw-bold mb-3">3. Dual Caching Pipeline (In-Memory + Response Cache)</h4>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="p-4 rounded-3 border bg-light h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="fw-bold mb-0">IMemoryCache (Server Side)</h5>
+                        <span class="badge bg-success">10-Minute Expiry</span>
+                    </div>
+                    <p class="text-muted small">
+                        Stores the entire product collection retrieved from FakeStoreAPI in the web server's memory space.
+                    </p>
+                    <ul class="small text-muted ps-3 mb-3">
+                        <li><strong>Key:</strong> <code>ONLINE_SHOPPING_PRODUCTS_LIST</code></li>
+                        <li><strong>Expiration:</strong> <code>TimeSpan.FromMinutes(10)</code> (Absolute)</li>
+                        <li><strong>Cache Invalidation:</strong> Available via "Refresh Cache" button on UI</li>
+                        <li><strong>Advantage:</strong> Eliminates redundant external HTTP roundtrips to FakeStoreAPI</li>
+                    </ul>
+                    <div class="code-box">
+                        _memoryCache.Set(key, products, TimeSpan.FromMinutes(10));
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="p-4 rounded-3 border bg-light h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="fw-bold mb-0">Response Caching (Client/Proxy)</h5>
+                        <span class="badge bg-primary">60-Second Duration</span>
+                    </div>
+                    <p class="text-muted small">
+                        Instructs client browsers and downstream proxy caches to cache the rendered HTML of the Product Details page.
+                    </p>
+                    <ul class="small text-muted ps-3 mb-3">
+                        <li><strong>Target Action:</strong> <code>ProductController.Details(int? id)</code></li>
+                        <li><strong>Header:</strong> <code>Cache-Control: public, max-age=60</code></li>
+                        <li><strong>Vary By:</strong> <code>VaryByQueryKeys = new[] { "id" }</code></li>
+                        <li><strong>Advantage:</strong> Instantaneous page reloads without touching server actions</li>
+                    </ul>
+                    <div class="code-box">
+                        [ResponseCache(Duration = 60, VaryByQueryKeys = new[] { "id" })]
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'neutral',
+                flowchart: {
+                    useMaxWidth: true,
+                    htmlLabels: true,
+                    curve: 'basis'
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,23 @@
+@* ==============================================================================
+   ErrorDetails.cshtml (Product)
+   Online Shopping Product Management System
+   Friendly product not found page.
+   ============================================================================== *@
+@{
+    ViewData["Title"] = "Product Not Found";
+}
+
+<div class="container py-5 text-center" style="max-width: 600px;">
+    <div class="p-5 bg-white rounded-4 border shadow-sm">
+        <div class="d-inline-flex p-3 bg-secondary bg-opacity-10 text-secondary rounded-circle mb-3">
+            <i class="bi bi-box-seam fs-1"></i>
+        </div>
+        <h3 class="fw-bold mb-2">Product Not Found</h3>
+        <p class="text-muted mb-4">
+            @(ViewBag.ErrorMessage ?? "The item you requested is currently unavailable or the link may be incomplete.")
+        </p>
+        <a asp-action="Index" class="btn btn-primary-custom px-4 py-2">
+            <i class="bi bi-arrow-left me-1"></i> Browse Product Catalog
+        </a>
+    </div>
+</div>

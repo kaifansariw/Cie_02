@@ -1,0 +1,237 @@
+@* ==============================================================================
+   Details.cshtml (Product)
+   Online Shopping Product Management System
+   Displays complete product information, dynamic discounts, and customer order form.
+   ============================================================================== *@
+@model OnlineShoppingSystem.Models.Product
+
+@{
+    ViewData["Title"] = Model.ProductName;
+    decimal discountedPrice = ViewBag.CalculatedDiscountedPrice != null ? (decimal)ViewBag.CalculatedDiscountedPrice : Model.GetDiscountedPrice();
+    decimal savings = ViewBag.CalculatedSavings != null ? (decimal)ViewBag.CalculatedSavings : Model.GetSavingsAmount();
+    var orderForm = ViewBag.OrderForm as OnlineShoppingSystem.Models.OrderViewModel ?? new OnlineShoppingSystem.Models.OrderViewModel
+    {
+        ProductId = Model.ProductId,
+        UnitPrice = Model.Price,
+        DiscountPercentage = Model.DiscountPercentage,
+        UnitDiscountedPrice = discountedPrice
+    };
+    string? customerCookie = Context.Request.Cookies["CustomerName"];
+}
+
+<div class="container-fluid px-0">
+    @* Navigation Breadcrumb *@
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Catalog</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.ProductName</li>
+        </ol>
+    </nav>
+
+    @* --------------------------------------------------------------------------
+       Product Details & Image Showcase
+       -------------------------------------------------------------------------- *@
+    <div class="row g-4 mb-5">
+        @* Left Column: Product Image Gallery Card *@
+        <div class="col-lg-5">
+            <div class="modern-card p-4 text-center bg-white h-100 d-flex flex-column justify-content-center align-items-center position-relative">
+                @if (Model.HasDiscount())
+                {
+                    <span class="position-absolute top-0 start-0 m-4 discount-badge fs-6">
+                        -@Model.DiscountPercentage% OFF
+                    </span>
+                }
+                <div style="height: 360px; max-width: 100%; display: flex; align-items: center; justify-content: center;">
+                    <img src="@Model.Image" alt="@Model.ProductName" class="img-fluid h-100 object-fit-contain p-2" />
+                </div>
+                <div class="d-flex align-items-center justify-content-center gap-3 mt-4 text-muted small">
+                    <span><i class="bi bi-star-fill text-warning me-1"></i> @Model.RatingRate / 5.0</span>
+                    <span>&bull;</span>
+                    <span><i class="bi bi-chat-left-text me-1"></i> @Model.RatingCount Reviews</span>
+                    <span>&bull;</span>
+                    <span><i class="bi bi-check-circle text-success me-1"></i> In Stock</span>
+                </div>
+            </div>
+        </div>
+
+        @* Right Column: Product Specs & Pricing Calculations *@
+        <div class="col-lg-7">
+            <div class="modern-card p-4 p-md-5 bg-white h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill text-uppercase fw-bold">
+                            @Model.Category
+                        </span>
+                        <span class="text-muted small">
+                            SKU: <strong>#@Model.ProductId</strong>
+                        </span>
+                    </div>
+
+                    <h2 class="fw-bold mb-3 text-dark">@Model.ProductName</h2>
+
+                    <p class="text-muted leading-relaxed mb-4">
+                        @Model.Description
+                    </p>
+
+                    @* Pricing Calculation Breakdown Box *@
+                    <div class="p-4 bg-light rounded-4 border mb-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-muted fw-semibold">Retail Price:</span>
+                            <span class="@(Model.HasDiscount() ? "original-price-strike fs-5" : "fs-4 fw-bold text-dark")">
+                                $@Model.Price.ToString("N2")
+                            </span>
+                        </div>
+
+                        @if (Model.HasDiscount())
+                        {
+                            <div class="d-flex align-items-center justify-content-between mb-2 text-danger">
+                                <span class="fw-semibold">
+                                    <i class="bi bi-tag-fill me-1"></i> Special Discount:
+                                </span>
+                                <span class="fw-bold fs-6">
+                                    -@Model.DiscountPercentage% OFF (-$@savings.ToString("N2"))
+                                </span>
+                            </div>
+                        }
+
+                        <hr class="my-2 border-secondary-subtle" />
+
+                        <div class="d-flex align-items-center justify-content-between pt-1">
+                            <div>
+                                <span class="fw-bold fs-5 text-dark d-block">Final Price:</span>
+                                <small class="text-success fw-semibold">Includes taxes & discount</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="discounted-price-highlight fs-2">
+                                    $@discountedPrice.ToString("N2")
+                                </span>
+                                @if (Model.HasDiscount())
+                                {
+                                    <div class="text-success small fw-bold">
+                                        Total Savings: $@savings.ToString("N2")
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Quick Action Button *@
+                <div class="d-flex gap-3">
+                    <a href="#orderSection" class="btn btn-primary-custom flex-grow-1 py-3 text-center fs-6">
+                        <i class="bi bi-cart-check-fill me-2"></i> Order This Item
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-custom py-3 px-4">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Catalog
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --------------------------------------------------------------------------
+       Customer Order Form
+       -------------------------------------------------------------------------- *@
+    <div id="orderSection" class="modern-card p-4 p-md-5 mb-5 bg-white">
+        <div class="mb-4">
+            <h3 class="fw-bold mb-1">Customer Checkout</h3>
+            <p class="text-muted small mb-0">
+                Complete your details below to place an instant order.
+            </p>
+        </div>
+
+        <form asp-controller="Product" asp-action="PlaceOrder" method="post" class="needs-validation">
+            @* CSRF Antiforgery Token *@
+            @Html.AntiForgeryToken()
+
+            @* Hidden Field: Preserves ProductId across POST without showing debug elements *@
+            <input type="hidden" name="ProductId" value="@Model.ProductId" />
+
+            <div class="row g-3">
+                @* Customer Name *@
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">
+                        Full Name <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                        <input type="text" name="CustomerName" class="form-control"
+                               placeholder="Enter your full name"
+                               value="@(string.IsNullOrWhiteSpace(orderForm.CustomerName) ? customerCookie : orderForm.CustomerName)" required />
+                    </div>
+                </div>
+
+                @* Email Address *@
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">
+                        Email Address <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                        <input type="email" name="CustomerEmail" class="form-control"
+                               placeholder="name@example.com"
+                               value="@(string.IsNullOrEmpty(orderForm.CustomerEmail) ? "customer@example.com" : orderForm.CustomerEmail)" required />
+                    </div>
+                </div>
+
+                @* Shipping Address *@
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">
+                        Shipping Address <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-geo-alt"></i></span>
+                        <input type="text" name="ShippingAddress" class="form-control"
+                               placeholder="123 Shopping Blvd, City, Country"
+                               value="@(string.IsNullOrEmpty(orderForm.ShippingAddress) ? "452 Shopping Ave, Suite 100" : orderForm.ShippingAddress)" required />
+                    </div>
+                </div>
+
+                @* Quantity *@
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">
+                        Quantity <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-box-seam"></i></span>
+                        <input type="number" id="orderQuantityInput" name="Quantity" class="form-control"
+                               min="1" max="50" value="1" required />
+                    </div>
+                </div>
+
+                @* Payment Method Selection *@
+                <div class="col-md-12">
+                    <label class="form-label fw-semibold">Payment Method</label>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <div class="form-check p-3 bg-light rounded-3 border flex-grow-1">
+                            <input class="form-check-input" type="radio" name="PaymentMethod" id="payCredit" value="Credit Card" checked>
+                            <label class="form-check-label fw-semibold" for="payCredit">
+                                <i class="bi bi-credit-card-2-front text-primary me-1"></i> Credit / Debit Card
+                            </label>
+                        </div>
+                        <div class="form-check p-3 bg-light rounded-3 border flex-grow-1">
+                            <input class="form-check-input" type="radio" name="PaymentMethod" id="payPaypal" value="PayPal">
+                            <label class="form-check-label fw-semibold" for="payPaypal">
+                                <i class="bi bi-paypal text-info me-1"></i> PayPal
+                            </label>
+                        </div>
+                        <div class="form-check p-3 bg-light rounded-3 border flex-grow-1">
+                            <input class="form-check-input" type="radio" name="PaymentMethod" id="payCod" value="Cash on Delivery">
+                            <label class="form-check-label fw-semibold" for="payCod">
+                                <i class="bi bi-cash-stack text-success me-1"></i> Cash on Delivery
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Submit Button *@
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary-custom px-5 py-3 fs-6">
+                    <i class="bi bi-lock-fill me-2"></i> Confirm & Place Order ($@discountedPrice.ToString("N2"))
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

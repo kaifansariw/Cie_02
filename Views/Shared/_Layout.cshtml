@@ -1,0 +1,194 @@
+@* ==============================================================================
+   _Layout.cshtml
+   Application: Online Shopping Product Management System
+   Description: Clean, modern eCommerce master layout template with customer profile,
+   responsive navigation, and elegant footer.
+   ============================================================================== *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ShopCore Online</title>
+    
+    @* Google Fonts & Bootstrap Icons CDN *@
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    @* Local Bootstrap CSS *@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    @* Custom Design System Stylesheet *@
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    @* --------------------------------------------------------------------------
+       Application Header & Navigation Bar
+       -------------------------------------------------------------------------- *@
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg app-navbar">
+            <div class="container-fluid px-4">
+                @* Brand Identity *@
+                <a class="navbar-brand brand-gradient d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <div class="brand-icon-wrapper">
+                        <i class="bi bi-cart3"></i>
+                    </div>
+                    <span>ShopCore</span>
+                </a>
+
+                @* Mobile Toggle Button *@
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                        aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                @* Navigation Links *@
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house me-1"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Product" asp-action="Index">
+                                <i class="bi bi-grid-3x3-gap me-1"></i> Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Architecture">
+                                <i class="bi bi-diagram-3 me-1"></i> Architecture
+                            </a>
+                        </li>
+                    </ul>
+
+                    @* Customer Profile Controls *@
+                    <div class="d-flex align-items-center gap-2">
+                        @{
+                            var customerCookie = Context.Request.Cookies["CustomerName"];
+                        }
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-primary-custom dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i>
+                                <span>@(string.IsNullOrWhiteSpace(customerCookie) ? "My Account" : customerCookie)</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2 mt-2" style="min-width: 220px;">
+                                <li class="px-3 py-2 border-bottom">
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Signed in as</small>
+                                    <div class="fw-bold text-dark mt-1">
+                                        @(string.IsNullOrWhiteSpace(customerCookie) ? "Guest Customer" : customerCookie)
+                                    </div>
+                                </li>
+                                <li class="p-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#customerModal">
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        @(string.IsNullOrWhiteSpace(customerCookie) ? "Set Name" : "Edit Profile")
+                                    </button>
+                                </li>
+                                @if (!string.IsNullOrWhiteSpace(customerCookie))
+                                {
+                                    <li class="px-2 pb-1">
+                                        <form asp-controller="Product" asp-action="ClearCustomerCookie" method="post" class="m-0">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                                            </button>
+                                        </form>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    @* --------------------------------------------------------------------------
+       Main Content Body
+       -------------------------------------------------------------------------- *@
+    <main role="main" class="container-fluid px-4 py-4">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm border-0 d-flex align-items-center" role="alert">
+                <i class="bi bi-check-circle-fill fs-5 me-2 text-success"></i>
+                <div>@TempData["SuccessMessage"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+
+    @* --------------------------------------------------------------------------
+       Modal: Customer Profile / Name
+       -------------------------------------------------------------------------- *@
+    <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="customerModalLabel">
+                        <i class="bi bi-person text-primary me-2"></i> Customer Profile
+                    </h5>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-controller="Product" asp-action="SetCustomerCookie" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                    <div class="modal-body py-3">
+                        <p class="text-muted small mb-3">
+                            Enter your full name to personalize your shopping experience and pre-fill your order details.
+                        </p>
+                        <div class="mb-3">
+                            <label for="customerNameInput" class="form-label fw-semibold">Your Full Name</label>
+                            <input type="text" class="form-control rounded-3" id="customerNameInput" name="customerName"
+                                   placeholder="e.g. Alex Johnson" value="@customerCookie" required maxlength="100" />
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="bi bi-save me-1"></i> Save Name
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @* --------------------------------------------------------------------------
+       Application Footer
+       -------------------------------------------------------------------------- *@
+    <footer class="footer mt-auto py-4 bg-white border-top">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6 text-center text-md-start">
+                    <span class="fw-bold text-dark">ShopCore Online</span>
+                    <p class="text-muted small mb-0 mt-1">
+                        &copy; @DateTime.UtcNow.Year ShopCore. All rights reserved. Premium online shopping experience.
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <ul class="list-inline mb-0 small text-muted">
+                        <li class="list-inline-item"><a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none">Home</a></li>
+                        <li class="list-inline-item">&bull;</li>
+                        <li class="list-inline-item"><a asp-controller="Product" asp-action="Index" class="text-muted text-decoration-none">Products</a></li>
+                        <li class="list-inline-item">&bull;</li>
+                        <li class="list-inline-item"><a asp-controller="Home" asp-action="Architecture" class="text-muted text-decoration-none">Architecture</a></li>
+                        <li class="list-inline-item">&bull;</li>
+                        <li class="list-inline-item"><a asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    @* Local Scripts *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
